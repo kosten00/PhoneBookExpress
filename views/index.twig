@@ -2,14 +2,68 @@
 
 {% block body %}
     {% verbatim %}
-<div class="container">
-  <h1>PhoneBook</h1>
-  <hr>
-
-    <div>
-
-
-    </div>
-</div>
+        <div class="container" v-cloak id="app">
+            <h1 class="p-2">PhoneBook</h1>
+            <hr>
+                <form>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>First name<span v-if="isEmptyFirstName" class="badge badge-danger">Field is empty</span></label>
+                            <input v-model="firstName" type="text" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Last name<span v-if="isEmptyLastName" class="badge badge-danger">Field is empty</span></label>
+                            <input v-model="lastName" type="text" class="form-control">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label>Phone number<span v-if="isEmptyPhone" class="badge badge-danger">Field is empty</span></label>
+                            <input v-model="phone" type="number" class="form-control">
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label>Please input contact data and press "Add" button</label>
+                            <div class="form-row">
+                                <button @click.prevent="add()" class="btn form-group btn-primary offset-md-1 col-md-5">Add</button>
+                                <button @click="firstName = '', lastName = '', phone = ''"
+                                class="btn form-group btn-secondary offset-md-1 col-md-5"
+                                :disabled="firstName === '' && lastName === '' && phone === ''">Clear</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-row ">
+                        <input v-model="firstName" type="text" class="form-control form-group col-md-8">
+                        <button class="btn form-group btn-primary offset-md-1 col-md-3">Search</button>
+                    </div>
+                </form>
+            <table class="table">
+              <thead class="thead-light">
+                <tr>
+                  <th scope="col">
+                      <input class=" position-relative" type="checkbox">
+                  </th>
+                  <th scope="col">#</th>
+                  <th scope="col">First</th>
+                  <th scope="col">Last</th>
+                  <th scope="col">Phone</th>
+                  <th scope="col">
+                  <button disabled class="btn btn-danger" type="button"><b-icon icon="trash-fill" class="rounded-circle bg-danger"></b-icon></button>
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr :key="contact.id" v-for="(contact, index) in contacts">
+                  <th>
+                      <input class="position-relative" type="checkbox">
+                  </th>
+                  <th>{{ index + 1 }}</th>
+                  <td>contact.firstName</td>
+                  <td>contact.lastName</td>
+                  <td>contact.phone</td>
+                  <td><button class="btn btn-danger" type="button"><b-icon icon="trash" class="rounded-circle bg-danger"></b-icon></button>
+                </tr>
+              </tbody>
+            </table>
+        </div>
     {% endverbatim %}
 {% endblock %}
