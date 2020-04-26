@@ -10,22 +10,22 @@ router.get('/getContacts', function (req, res) {
     var filteredContacts = term.length === 0
         ? contacts
         : contacts.filter(function (c) {
-            return c.name.toUpperCase().indexOf(term) >= 0
+            return c.firstName.toUpperCase().indexOf(term) >= 0
+                || c.lastName.toUpperCase().indexOf(term) >= 0
                 || c.phone.toUpperCase().indexOf(term) >= 0;
         });
 
     res.send(filteredContacts);
-})
+});
 
-router.post('/deleteContact', function (req, res) {
-    var id = req.body.id;
+router.post('/removeContact', function (req, res) {
+    var id = req.body.request.id;
 
-    var contact = contacts.find(function (c) {
-        return c.id === id;
+    var contactToRemove = contacts.find(function (contact) {
+        return contact.id === id;
+    });
 
-    })
-
-    if (contact === undefined) {
+    if (contactToRemove === undefined) {
         res.send({
             success: false,
             message: 'Contact with id = ' + id + ' not found'
@@ -34,15 +34,14 @@ router.post('/deleteContact', function (req, res) {
         return;
     }
 
-    contacts = contacts.filter(function (c) {
-        return c.id !== id;
+    contacts = contacts.filter(function (contact) {
+        return contact.id !== id;
     });
 
     res.send({
         success: true,
         message: null
     });
-
 });
 
 router.post('/addContact', function (req, res) {
@@ -75,8 +74,6 @@ router.post('/addContact', function (req, res) {
 
 /* GET home page. */
 router.get('/', function (req, res, next) {
-
-
     res.render('index', {title: 'Express'});
 });
 

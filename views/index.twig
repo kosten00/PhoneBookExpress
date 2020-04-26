@@ -5,65 +5,82 @@
         <div class="container" v-cloak id="app">
             <h1 class="p-2">PhoneBook</h1>
             <hr>
-                <form>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>First name<span v-if="isEmptyFirstName" class="badge badge-danger">Field is empty</span></label>
-                            <input v-model="firstName" type="text" class="form-control">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Last name<span v-if="isEmptyLastName" class="badge badge-danger">Field is empty</span></label>
-                            <input v-model="lastName" type="text" class="form-control">
+            <form>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>First name<span v-if="isEmptyFirstName" class="badge badge-danger">Field is empty</span></label>
+                        <input v-model="firstName" @input="isEmptyFirstName = false" type="text" class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Last name<span v-if="isEmptyLastName" class="badge badge-danger">Field is empty</span></label>
+                        <input v-model="lastName" @input="isEmptyLastName = false" type="text" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-6">
+                        <label>Phone number<span v-if="isEmptyPhone" class="badge badge-danger">Field is empty</span></label>
+                        <input v-model="phone" @input="isEmptyPhone = false" type="number" class="form-control">
+                    </div>
+                    <div class="form-group col-md-6">
+                        <label>Please input contact data and press "Add" button</label>
+                        <div class="form-row">
+                            <button @click.prevent="add" class="btn form-group btn-primary offset-md-1 col-md-5">Add</button>
+                            <button @click="clearInputs"
+                                    class="btn form-group btn-secondary offset-md-1 col-md-5"
+                                    :disabled="hasNoFilledFields">Clear
+                            </button>
                         </div>
                     </div>
-                    <div class="form-row">
-                        <div class="form-group col-md-6">
-                            <label>Phone number<span v-if="isEmptyPhone" class="badge badge-danger">Field is empty</span></label>
-                            <input v-model="phone" type="number" class="form-control">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label>Please input contact data and press "Add" button</label>
-                            <div class="form-row">
-                                <button @click.prevent="add()" class="btn form-group btn-primary offset-md-1 col-md-5">Add</button>
-                                <button @click="firstName = '', lastName = '', phone = ''"
-                                class="btn form-group btn-secondary offset-md-1 col-md-5"
-                                :disabled="firstName === '' && lastName === '' && phone === ''">Clear</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row ">
-                        <input v-model="firstName" type="text" class="form-control form-group col-md-8">
-                        <button class="btn form-group btn-primary offset-md-1 col-md-3">Search</button>
-                    </div>
-                </form>
-            <table class="table">
-              <thead class="thead-light">
+                </div>
+                <div class="form-row ">
+                    <input v-model="term" type="text" class="form-control form-group col-md-8">
+                    <button class="btn form-group btn-primary offset-md-1 col-md-3"
+                            :disabled="isEmptyTerm">Search
+                    </button>
+                </div>
+            </form>
+            <table class="table fixed-layout-table">
+                <thead class="thead-light">
                 <tr>
-                  <th scope="col">
-                      <input class=" position-relative" type="checkbox">
-                  </th>
-                  <th scope="col">#</th>
-                  <th scope="col">First</th>
-                  <th scope="col">Last</th>
-                  <th scope="col">Phone</th>
-                  <th scope="col">
-                  <button disabled class="btn btn-danger" type="button"><b-icon icon="trash-fill" class="rounded-circle bg-danger"></b-icon></button>
-                  </th>
+                    <th>
+                        <input type="checkbox" v-model="selectAll" class="position-relative" :disabled="hasEmptyContacts">
+                    </th>
+                    <th>#</th>
+                    <th class="w-20">First</th>
+                    <th class="w-20">Last</th>
+                    <th class="w-25">Phone</th>
+                    <th class="w-15">
+                        <button @click="openConfirmationModal()" :disabled="hasNoCheckedContacts" class="btn p-0 btn-danger" type="button">
+                               Remove selected
+                        </button>
+                    </th>
                 </tr>
-              </thead>
-              <tbody>
+                </thead>
+                <tbody>
                 <tr :key="contact.id" v-for="(contact, index) in contacts">
-                  <th>
-                      <input class="position-relative" type="checkbox">
-                  </th>
-                  <th>{{ index + 1 }}</th>
-                  <td>contact.firstName</td>
-                  <td>contact.lastName</td>
-                  <td>contact.phone</td>
-                  <td><button class="btn btn-danger" type="button"><b-icon icon="trash" class="rounded-circle bg-danger"></b-icon></button>
+                    <td>
+                        <input type="checkbox" v-model="checkedContactsIDs" :value="contact.id" number
+                               class="position-relative">
+                    </td>
+                    <td>{{ index + 1 }}</td>
+                    <td class="text-truncate">{{ contact.firstName }}</td>
+                    <td class="text-truncate">{{ contact.lastName }}</td>
+                    <td class="text-truncate">{{ contact.phone }}</td>
+                    <td>
+                        <button @click="openConfirmationModal(contact)"
+                                class="btn btn-danger" type="button">
+                            <b-icon icon="trash" class="rounded-circle bg-danger"></b-icon>
+                        </button>
+                    </td>
                 </tr>
-              </tbody>
+                </tbody>
             </table>
+
+            <b-modal id="confirmation-modal"
+            @ok="remove()"
+            > {{ modalText }}
+            </b-modal>
+
         </div>
     {% endverbatim %}
 {% endblock %}

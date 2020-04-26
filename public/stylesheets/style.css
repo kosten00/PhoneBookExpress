@@ -5,3 +5,7 @@
 [v-cloak] {
   display: none;
 }
+
+.fixed-layout-table {
+  table-layout: fixed;
+}
