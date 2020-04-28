@@ -18,25 +18,29 @@ router.get('/getContacts', function (req, res) {
     res.send(filteredContacts);
 });
 
-router.post('/removeContact', function (req, res) {
-    var id = req.body.request.id;
+router.post('/removeContacts', function (req, res) {
+    var IDs = [];
 
-    var contactToRemove = contacts.find(function (contact) {
-        return contact.id === id;
-    });
+    IDs = req.body.request.IDs;
 
-    if (contactToRemove === undefined) {
-        res.send({
-            success: false,
-            message: 'Contact with id = ' + id + ' not found'
+    for (var i = 0; i < IDs.length; i++) {
+        var contactToRemove = contacts.find(function (contact) {
+            return contact.id === IDs[i];
         });
 
-        return;
-    }
+        if (contactToRemove === undefined) {
+            res.send({
+                success: false,
+                message: 'Contact with id = ' + IDs[i] + ' not found'
+            });
 
-    contacts = contacts.filter(function (contact) {
-        return contact.id !== id;
-    });
+            return;
+        }
+
+        contacts = contacts.filter(function (contact) {
+            return contact.id !== contactToRemove.id;
+        });
+    }
 
     res.send({
         success: true,

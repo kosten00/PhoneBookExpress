@@ -34,8 +34,8 @@
                 </div>
                 <div class="form-row ">
                     <input v-model="term" type="text" class="form-control form-group col-md-8">
-                    <button class="btn form-group btn-primary offset-md-1 col-md-3"
-                            :disabled="isEmptyTerm">Search
+                    <button @click.prevent="getContacts" class="btn form-group btn-primary offset-md-1 col-md-3"
+                            :disabled="isEmptyTerm || hasEmptyContacts">{{ searchButtonText }}
                     </button>
                 </div>
             </form>
@@ -50,8 +50,9 @@
                     <th class="w-20">Last</th>
                     <th class="w-25">Phone</th>
                     <th class="w-15">
-                        <button @click="openConfirmationModal()" :disabled="hasNoCheckedContacts" class="btn p-0 btn-danger" type="button">
-                               Remove selected
+                        <button @click="openConfirmationModal()" :disabled="hasNoCheckedContacts" class="btn p-0 btn-danger"
+                                type="button">
+                            Remove selected
                         </button>
                     </th>
                 </tr>
@@ -75,12 +76,10 @@
                 </tr>
                 </tbody>
             </table>
-
             <b-modal id="confirmation-modal"
-            @ok="remove()"
-            > {{ modalText }}
+                     @ok="remove()"
+                     ok-varian="danger"> {{ modalText }}
             </b-modal>
-
         </div>
     {% endverbatim %}
 {% endblock %}

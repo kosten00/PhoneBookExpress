@@ -10,12 +10,12 @@ function PhoneBookService() {
             data: JSON.stringify({request: contact})
         });
     }
-        //todo send array with ids to remove
-    this.removeContact = function (contact) {
+
+    this.removeContacts = function (IDs) {
         return $.post({
-            url: '/removeContact',
+            url: '/removeContacts',
             contentType: 'application/json',
-            data: JSON.stringify({request: contact})
+            data: JSON.stringify({request: IDs})
         });
     }
 }
@@ -24,7 +24,6 @@ new Vue({
     el: '#app',
     data: {
         service: new PhoneBookService(),
-        term: '',
         contacts: [],
         firstName: '',
         lastName: '',
@@ -32,15 +31,32 @@ new Vue({
         isEmptyFirstName: false,
         isEmptyLastName: false,
         isEmptyPhone: false,
+        term: '',
         checkedContactsIDs: [],
         currentContact: {},
-        modalText: ''
+        modalText: '',
+        hasSearchFilterApplied: false,
+        searchButtonText: 'Search'
     },
     created: function () {
         this.getContacts();
     },
     methods: {
         getContacts: function () {
+            if (this.hasSearchFilterApplied) {
+                this.hasSearchFilterApplied = false;
+
+                this.searchButtonText = 'Search';
+
+                this.term = '';
+            }
+
+            if (this.term.length > 0  && !this.hasSearchFilterApplied) {
+                this.hasSearchFilterApplied = true;
+
+                this.searchButtonText = 'Disable search filter';
+            }
+
             var that = this;
 
             this.service.getContacts(this.term).done(function (contacts) {
@@ -59,15 +75,23 @@ new Vue({
             this.getContacts();
         },
         remove: function () {
-            var id = this.currentContact.id;
+            var IDs = [];
 
-            this.checkedContactsIDs = this.checkedContactsIDs.filter(function (contactId) {
-                return contactId !== id;
-            });
+            if (this.checkedContactsIDs.length > 0) {
+                IDs = this.checkedContactsIDs;
+            } else {
+                IDs.push(this.currentContact.id);
 
-            this.service.removeContact({id: id});
+                this.currentContact = {};
+            }
 
-            this.currentContact = {};
+            for (var i = 0; i < IDs.length; i++) {
+                this.checkedContactsIDs = this.checkedContactsIDs.filter(function (contactId) {
+                    return contactId !== IDs[i];
+                });
+            }
+
+            this.service.removeContacts({IDs: IDs});
 
             this.getContacts();
         },
@@ -92,12 +116,12 @@ new Vue({
             return this.isEmptyFirstName || this.isEmptyLastName || this.isEmptyPhone;
         },
         openConfirmationModal: function (contact) {
-            if (contact) {
+            if (contact !== undefined) {
                 this.currentContact = contact;
 
                 this.modalText = 'Remove contact: '
                     + contact.firstName + ' '
-                    + contact.lastName  + ' '
+                    + contact.lastName + ' '
                     + contact.phone + '?'
             } else {
                 this.modalText = 'Remove all selected contacts?'
@@ -118,12 +142,16 @@ new Vue({
         },
         selectAll: {
             get: function () {
-                return this.contacts ? this.checkedContactsIDs.length === this.contacts.length : false;
+                if (this.contacts !== undefined) {
+                    return this.checkedContactsIDs.length === this.contacts.length;
+                } else {
+                    return false;
+                }
             },
             set: function (value) {
                 var checked = [];
 
-                if (value) {
+                if (value !== undefined) {
                     this.contacts.forEach(function (contact) {
                         checked.push(contact.id);
                     });
